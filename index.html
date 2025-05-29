@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>日付計算ツール</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2em;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+    }
+    input, select, button {
+      margin-top: 0.3em;
+      padding: 0.4em;
+      font-size: 1em;
+    }
+    #result {
+      margin-top: 2em;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .container {
+      background: white;
+      padding: 2em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+    }
+    .options {
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>日付計算ツール</h1>
+
+    <label for="baseDate">基準日:</label>
+    <input type="date" id="baseDate">
+
+    <label for="days">加減する日数:</label>
+    <input type="number" id="days" value="0">
+
+    <label for="operation">操作:</label>
+    <select id="operation">
+      <option value="add">加算</option>
+      <option value="subtract">減算</option>
+    </select>
+
+    <div class="options">
+      <label>
+        <input type="checkbox" id="includeStartDate"> 初日を含む
+      </label>
+      <label>
+        <input type="checkbox" id="weekdaysOnly"> 平日のみカウント（営業日）
+      </label>
+    </div>
+
+    <button onclick="calculateDate()">計算する</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function isWeekday(date) {
+      const day = date.getDay();
+      return day !== 0 && day !== 6; // 0 = 日曜, 6 = 土曜
+    }
+
+    function calculateDate() {
+      const baseDateStr = document.getElementById('baseDate').value;
+      const days = parseInt(document.getElementById('days').value, 10);
+      const operation = document.getElementById('operation').value;
+      const includeStart = document.getElementById('includeStartDate').checked;
+      const weekdaysOnly = document.getElementById('weekdaysOnly').checked;
+
+      if (!baseDateStr || isNaN(days)) {
+        document.getElementById('result').textContent = '有効な日付と日数を入力してください。';
+        return;
+      }
+
+      let date = new Date(baseDateStr);
+      let remaining = Math.abs(days);
+      let direction = (operation === 'add') ? 1 : -1;
+
+      if (includeStart && (!weekdaysOnly || isWeekday(date))) {
+        remaining -= 1;
+      }
+
+      while (remaining > 0) {
+        date.setDate(date.getDate() + direction);
+        if (!weekdaysOnly || isWeekday(date)) {
+          remaining -= 1;
+        }
+      }
+
+      const resultStr = date.toISOString().split('T')[0];
+      document.getElementById('result').textContent = `結果の日付: ${resultStr}`;
+    }
+  </script>
+</body>
+</html>
+
